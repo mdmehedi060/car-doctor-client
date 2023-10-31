@@ -35,7 +35,7 @@ const Login = () => {
                 <span className="label-text">Email</span>
               </label>
               <input
-                name="name"
+                name="email"
                 type="email"
                 placeholder="email"
                 className="input input-bordered"
