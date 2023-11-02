@@ -25,10 +25,10 @@ const Login = () => {
       const user ={email};
      
       // get access token
-axios.post('http://localhost:5000/jwt',user, {withCredentials: true})
+axios.post('https://car-doctor-server-puce-psi.vercel.app/jwt',user, {withCredentials: true})
 .then(res=>{
   console.log(res.data);
-  if (res.data.success) {
+  if (res.data) {
     navigate(location?.state ? location?.state : '/')
 }
 })
