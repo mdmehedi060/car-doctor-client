@@ -2,19 +2,33 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../Providers/AuthProviders";
 import { useEffect } from "react";
 import BookingRow from "./BookingRow";
-import { swal } from 'sweetalert';
+import axios from "axios";
+import UseAxiosSecure from "../../Hooks/UseAxiosSecure";
+
 
 
 const Bookings = () => {
   const { user } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
-  const url = `http://localhost:5000/bookings?email=${user?.email}`;
+  const axiosSecure= UseAxiosSecure()
+  // const url = `http://localhost:5000/bookings?email=${user?.email}`;
+  const url = `/bookings?email=${user?.email}`;
 
   useEffect(() => {
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => setBookings(data));
-  }, [url]);
+    
+    
+    
+    // axios.get(url, {withCredentials: true})
+    // .then(res => {
+    //     setBookings(res.data);
+    // })
+axiosSecure.get(url)
+.then(res=>setBookings(res.data))
+
+    // fetch(url,{withCredentials: true})
+    //   .then((res) => res.json())
+    //   .then((data) => setBookings(data));
+  }, [url,axiosSecure]);
 
   const handleDelate=id=>{
     const procced = confirm('Are you sure you want to delate');
@@ -34,30 +48,26 @@ fetch(`http://localhost:5000/bookings/${id}`,{
     }
 }
 
-const handleConfirmed = id=>{
-  const procced = confirm('Are you sure you want to update this');
-  if(procced){
-    fetch(`http://localhost:5000/bookings/${id}`,{
-        method:'PATCH',
-        headers:{
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify({status: 'confirm'})
-    })
-.then(res=>res.json())
-.then(data=>{
-    console.log(data);
-    if(data.modifiedCount > 0){
-    //    updated status
-    const remaining = bookings.filter(booking=>booking._id !== id);
-    const updated= bookings.find(booking=> booking._id === id)
-   updated.status='confirmed';
-   const newBookings = [updated, ...remaining];
-   setBookings(newBookings);
-    }
-})
-  }
-    
+const handleBookingConfirm = id => {
+  fetch(`http://localhost:5000/bookings/${id}`, {
+      method: 'PATCH',
+      headers: {
+          'content-type': 'application/json'
+      },
+      body: JSON.stringify({ status: 'confirm' })
+  })
+      .then(res => res.json())
+      .then(data => {
+          console.log(data);
+          if (data.modifiedCount > 0) {
+              // update state
+              const remaining = bookings.filter(booking => booking._id !== id);
+              const updated = bookings.find(booking => booking._id === id);
+              updated.status = 'confirm'
+              const newBookings = [updated, ...remaining];
+              setBookings(newBookings);
+          }
+      })
 }
 
 
@@ -88,7 +98,7 @@ const handleConfirmed = id=>{
               key={booking._id} 
               booking={booking}
               handleDelate={ handleDelate}
-              handleConfirmed={handleConfirmed}
+              handleBookingConfirm={ handleBookingConfirm}
               ></BookingRow>
             ))}
           </tbody>
